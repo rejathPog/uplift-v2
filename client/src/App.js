@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { accessToken, logout, getCurrentTrackInfo } from './spotify';
+import { accessToken, logout, getCurrentUserProfie } from './spotify';
 import './App.css';
+import { catchErrors } from './utils';
 
 function App() {
   const [token, setToken] = useState(null);
@@ -10,15 +11,12 @@ function App() {
     setToken(accessToken);
 
     const fetchData = async () => {
-      try{
-        const { data } = await getCurrentTrackInfo();
+    
+        const { data } = await getCurrentUserProfie();
         setProfile(data);
         console.log(data);
-      } catch(e) {
-        console.error(e);
-      }
     };
-    fetchData();
+    catchErrors(fetchData());
   }, [])
   
   return (
@@ -33,8 +31,17 @@ function App() {
         </a>
         ):(
           <>
-          <h1>Logged in!</h1>
           <button onClick={logout}>Log Out</button>
+          <h1>Logged in!</h1>
+          {profile && (
+            <div>
+              <h1>{profile.display_name}</h1>
+              <p>{profile.followers.total} Followers</p>
+              {profile.images.length && profile.images[0].url && (
+                <img src={profile.images[0].url} alt="Avatar" />
+              )}
+            </div>
+          )}
           </>
         )}
       </header>
