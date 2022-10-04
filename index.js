@@ -31,7 +31,7 @@ const stateKey = 'spotify_auth_state';
 app.get('/login', (req, res) => {
     const state = generateRandomString(16);
     res.cookie(stateKey, state);
-    const scope = 'user-read-private user-read-email';
+    const scope = 'user-read-private user-read-email user-read-currently-playing';
 
     const queryParams = querystring.stringify({
         client_id: CLIENT_ID,
@@ -62,11 +62,12 @@ app.get('/callback', (req, res) => {
       })
         .then(response => {
           if (response.status === 200) {
-            const { access_token, refresh_token } = response.data;
+            const { access_token, refresh_token, expires_in } = response.data;
     
             const queryParams = querystring.stringify({
               access_token,
               refresh_token,
+              expires_in
             });
     
             res.redirect(`http://localhost:3000/?${queryParams}`);

@@ -1,38 +1,42 @@
-import {useEffect} from 'react';
-import logo from './logo.svg'; 
+import { useEffect, useState } from 'react';
+import { accessToken, logout, getCurrentTrackInfo } from './spotify';
 import './App.css';
 
 function App() {
+  const [token, setToken] = useState(null);
+  const [profile, setProfile] = useState(null);
+  
   useEffect(() => {
-    const queryString = window.location.search;
-    const urlParams = new URLSearchParams(queryString);
-    const accessToken = urlParams.get('access_token');
-    const refreshToken = urlParams.get('refresh_token');
-    /*
-    console.log(accessToken);
-    console.log(refreshToken);
-    if (refreshToken) {
-      fetch(`/refresh_token?refresh_token=${refreshToken}`)
-        .then(res => res.json())
-        .then(data => console.log(data))
-        .catch(err => console.error(err));
-    }
-    */
+    setToken(accessToken);
+
+    const fetchData = async () => {
+      try{
+        const { data } = await getCurrentTrackInfo();
+        setProfile(data);
+        console.log(data);
+      } catch(e) {
+        console.error(e);
+      }
+    };
+    fetchData();
   }, [])
   
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
+        {!token ? (
         <a
           className="App-link"
           href="http://localhost:8888/login"         
         >
           Login to Spotify
         </a>
+        ):(
+          <>
+          <h1>Logged in!</h1>
+          <button onClick={logout}>Log Out</button>
+          </>
+        )}
       </header>
     </div>
   );
