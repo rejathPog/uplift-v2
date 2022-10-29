@@ -1,5 +1,6 @@
 require('dotenv').config();
 const querystring = require('query-string');
+const { spawn } = require('child_process');
 const express = require('express');
 const axios = require('axios');
 const app = express();
@@ -8,6 +9,20 @@ const port = 8888;
 const CLIENT_ID = process.env.CLIENT_ID;
 const CLIENT_SECRET = process.env.CLIENT_SECRET;
 const REDIRECT_URI = process.env.REDIRECT_URI;
+
+/*
+const LOCALSTORAGE_KEYS = {
+  accessToken: 'spotify_access_token',
+  refreshToken: 'spotify_refresh_token',
+  expireTime: 'spotify_token_expire_time'
+}
+
+const LOCALSTORAGE_VALUES = {
+  accessToken: window.localStorage.getItem(LOCALSTORAGE_KEYS.accessToken),
+  refreshToken: window.localStorage.getItem(LOCALSTORAGE_KEYS.refreshToken),
+  expireTime: window.localStorage.getItem(LOCALSTORAGE_KEYS.expireTime),
+};
+*/
 
 app.get('/', (req, res) => {
     const data = {
@@ -63,13 +78,27 @@ app.get('/callback', (req, res) => {
         .then(response => {
           if (response.status === 200) {
             const { access_token, refresh_token, expires_in } = response.data;
-    
+            //access_token_global = access_token;
             const queryParams = querystring.stringify({
               access_token,
               refresh_token,
               expires_in
             });
-    
+            res.cookie('access_token', access_token);
+/*
+            const accessParams = {
+              [LOCALSTORAGE_KEYS.accessToken]: urlParams.get('access_token'),
+              [LOCALSTORAGE_KEYS.refreshToken]: urlParams.get('refresh_token'),
+              [LOCALSTORAGE_KEYS.expireTime]: urlParams.get('expires_in'),
+            };
+
+            if (accessParams[LOCALSTORAGE_KEYS.accessToken]) {
+              // Store the access params in localStorage
+              for (const property in accessParams) {
+                window.localStorage.setItem(property, accessParams[property]);
+              }
+            }
+*/    
             res.redirect(`http://localhost:3000/?${queryParams}`);
     
           } else {
@@ -105,6 +134,62 @@ app.get('/refresh_token', (req, res) => {
     });
 });
 
+app.get('/analyze', (req, res) => {
+  const track = req.query.trackName || null;
+  const artist = req.query.artistName || null;
+  console.log(track);
+  console.log(artist);
+  const python = spawn('python',['pytest.py', track, artist]);
+
+  python.stdout.on('data', (data) => {
+    console.log(data.toString());
+    console.log(typeof(data));
+    let queryParams = querystring.stringify({value: data.toString()});
+    res.redirect(`http://localhost:3000/analyze?${queryParams}`);
+  });
+
+  python.stderr.on('data', (data) => {
+    console.error(`stderr: ${data}`);
+  });
+
+  python.on('close', (code) => {
+    console.log(`child process exited with code ${code}`);
+  });
+})
+
+/*
+app.get('/analyze', (req, res) => {
+  console.log(access_token_global);
+  axios({
+    method: 'get',
+    url: 'https://api.spotify.com/v1/me/player/currently-playing',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${access_token_global}`
+    },
+  })
+  .then(response => {
+    res.send(response.data);
+    console.log(response.data);
+  })
+  .catch(error => {
+    res.send(error);
+  });
+})
+app.get('/analyze', (req, res) => {
+  const currentTrack = () => axios.get('https://api.spotify.com/v1/me/player/currently-playing');
+  let dataToSend;
+  const python = spawn('python',['pytest.py',currentTrack.item.name, currentTrack.item.album.artists[0].name]);
+  python.stdout.on('data', function(data) {
+    console.log('fetching data');
+    dataToSend = data;
+  })
+  python.on('close', (code) => {
+    console.log(`child process close all stdio with code ${code}`);
+    res.send(dataToSend);
+  })
+})
+*/
 app.listen(port, () => {
     console.log(`Express app listening at http://localhost:${port}`);
 });
