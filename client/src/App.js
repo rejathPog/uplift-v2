@@ -1,14 +1,22 @@
-import { accessToken, logout, getCurrentUserProfie, getCurrentTrackInfo } from './spotify';
+import { accessToken, logout, getCurrentUserProfile, getCurrentTrackInfo } from './spotify';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useEffect, useState } from 'react';
 import { catchErrors } from './utils';
 import Analysis from './Analysis';
+
+import {Helmet} from "react-helmet";
+
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faSpotify } from '@fortawesome/free-brands-svg-icons'
+
+
 import './App.css';
 
 
 function App() {
   const [token, setToken] = useState(null);
   const [track, setTrack] = useState(null);
+  const [profile, setProfile] = useState(null);
   
   useEffect(() => {
     setToken(accessToken);
@@ -19,18 +27,40 @@ function App() {
         console.log(data);
     };
     catchErrors(fetchData());
+    const fetchProfileData = async () => {    
+      const { data } = await getCurrentUserProfile();
+      setProfile(data);
+      console.log(data);
+  };
+  catchErrors(fetchProfileData());
   }, [])
   
   return (
     <div className="App">
+      <Helmet>
+                <meta charSet="utf-8" />
+                <link rel="canonical" href="http://example.com/example" />
+            </Helmet>
+
+
       <header className="App-header">
+        
         {!token ? (
-        <a
-          className="App-link"
-          href="http://localhost:8888/login"         
-        >
-          Login to Spotify
-        </a>
+
+        <div className='landing'>
+          <div>
+            <h1><FontAwesomeIcon icon={faSpotify} /> Uplift </h1>
+            <p>A realtime music analyzer </p>
+            
+            <a
+            className="App-link"
+            href="http://localhost:8888/login"
+          >
+              Login with Spotify
+            </a>
+            </div>
+        </div>
+        
         ):(
         <>
           <BrowserRouter>
@@ -39,17 +69,31 @@ function App() {
                 path="/"
                 element={
                   <>
-                  <button onClick={logout}>Log Out</button>
-                  <h1>Logged in!</h1>          
-                  {/*profile && (
-                    <div>
-                      <h1>{profile.display_name}</h1>
-                      <p>{profile.followers.total} Followers</p>
-                      {profile.images.length && profile.images[0].url && (
-                        <img src={profile.images[0].url} alt="Avatar" />
-                      )}
+                  
+                           
+                  {profile && (
+
+                    <div className="navbar">
+                      <div>
+                        <a className="brand" href='/'><FontAwesomeIcon icon={faSpotify} /> Uplift </a>
+                      </div>
+                      
+
+                      <div className="menu">
+                        {profile.images.length && profile.images[0].url && (
+                          <img className='profile-img' src={profile.images[0].url} alt="Avatar" />
+                        )}
+                        <p className='profile-name'>{profile.display_name}</p>
+                      </div>
+                      <div>
+                      <button className='logout-btn' onClick={logout}>Log Out</button> 
+                      </div>
+                      
                     </div>
-                      )*/}
+                    
+                    
+                      )}
+                    
                     {track && (
                       <div>
                         <p>You're listening to</p>

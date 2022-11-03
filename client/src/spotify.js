@@ -127,4 +127,4 @@ axios.defaults.headers['Content-Type'] = 'application/json';
  * @returns {Promise}
  */
 export const getCurrentTrackInfo = () => axios.get('/me/player/currently-playing');
-export const getCurrentUserProfie = () => axios.get('/me');
+export const getCurrentUserProfile = () => axios.get('/me');
