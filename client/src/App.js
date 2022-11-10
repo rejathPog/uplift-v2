@@ -100,7 +100,7 @@ function App() {
                         <h1>{track.item.name}</h1>
                         <h3>by {track.item.album.artists[0].name}</h3>
                         {/*<a href='http://localhost:8888/analyze'>Analyze</a>*/}
-                        <button onClick={
+                        <button className='analyze-btn' onClick={
                           () => {window.location=`http://localhost:8888/analyze?trackName=${track.item.name}&artistName=${track.item.album.artists[0].name}`}
                         }>Analyze</button>
                       </div>

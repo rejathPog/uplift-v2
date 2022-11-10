@@ -18,5 +18,4 @@ track = genius.search_song(title=track_name, artist=artist_name)
 sys.stdout = old_stdout 
 lyrics = track.lyrics
 sia = SentimentIntensityAnalyzer()
-sys.stdout = old_stdout 
 print(sia.polarity_scores(lyrics))

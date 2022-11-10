@@ -2,11 +2,17 @@ import React from 'react'
 
 function Analysis() {
   const urlParams = new URLSearchParams(window.location.search);
-  const track = urlParams.get('value') || null;
-  console.log('track: ', track);
+  const track = urlParams.get('value') || null; 
+  
+  
+  const obj = eval("(" + track + ')');
+
+  
+
+  
   return (
     <>
-    <h3>{track}</h3>
+      <h1>pos = {obj["pos"]}</h1> 
     </>
   )
 }
