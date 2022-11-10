@@ -110,7 +110,12 @@ function App() {
               />
               <Route 
                 path="analyze"
-                element = {<Analysis/>}
+                element = {
+                <>
+                {/*<h1>{track.item.name} has the following rating</h1>*/}
+                <Analysis/>
+                </>
+                }
               />
             </Routes>
           </BrowserRouter>
