@@ -46,7 +46,7 @@ const stateKey = 'spotify_auth_state';
 app.get('/login', (req, res) => {
     const state = generateRandomString(16);
     res.cookie(stateKey, state);
-    const scope = 'user-read-private user-read-email user-read-currently-playing';
+    const scope = 'user-read-private user-read-email user-read-currently-playing user-library-read user-top-read playlist-modify-public user-follow-read';
 
     const queryParams = querystring.stringify({
         client_id: CLIENT_ID,
@@ -143,7 +143,6 @@ app.get('/analyze', (req, res) => {
 
   python.stdout.on('data', (data) => {
     console.log(data.toString());
-    console.log(typeof(data));
     let queryParams = querystring.stringify({value: data.toString()});
     res.redirect(`http://localhost:3000/analyze?${queryParams}`);
   });
@@ -155,41 +154,29 @@ app.get('/analyze', (req, res) => {
   python.on('close', (code) => {
     console.log(`child process exited with code ${code}`);
   });
-})
+});
 
-/*
-app.get('/analyze', (req, res) => {
-  console.log(access_token_global);
-  axios({
-    method: 'get',
-    url: 'https://api.spotify.com/v1/me/player/currently-playing',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${access_token_global}`
-    },
-  })
-  .then(response => {
-    res.send(response.data);
-    console.log(response.data);
-  })
-  .catch(error => {
-    res.send(error);
+app.get('/createplaylist', (req, res) => {
+  const accessToken = req.query.accessToken || null;
+  const mood = req.query.mood || null;
+  const playlist = spawn('python', ['playlist.py', accessToken, mood]);
+
+  playlist.stdout.on('data', (data) => {
+    const uri = data.toString();
+    const redirect = `https://open.spotify.com/playlist/`;
+    const actual_uri = (redirect + uri.slice(0, -2)).toString();
+    res.redirect(actual_uri);
   });
-})
-app.get('/analyze', (req, res) => {
-  const currentTrack = () => axios.get('https://api.spotify.com/v1/me/player/currently-playing');
-  let dataToSend;
-  const python = spawn('python',['pytest.py',currentTrack.item.name, currentTrack.item.album.artists[0].name]);
-  python.stdout.on('data', function(data) {
-    console.log('fetching data');
-    dataToSend = data;
-  })
-  python.on('close', (code) => {
-    console.log(`child process close all stdio with code ${code}`);
-    res.send(dataToSend);
-  })
-})
-*/
+
+  playlist.stderr.on('data', (data) => {
+    console.error(`stderr: ${data}`);
+  });
+
+  playlist.on('close', (code) => {
+    console.log(`child process exited with code ${code}`);
+  });
+});
+
 app.listen(port, () => {
     console.log(`Express app listening at http://localhost:${port}`);
 });
