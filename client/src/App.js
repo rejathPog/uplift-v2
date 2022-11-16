@@ -95,27 +95,25 @@ function App() {
                         </div>
                       )}
 
-                      {(track && track.item.type === "track") ? (
+                      {track && track.item.type === "track" ? (
                         <div>
                           <h3>You're listening to</h3>
 
-                        <div className="track-details">
-                          <img
-                            height="200"
-                            width="200"
-                            className="track-img"
-                            src={track.item.album.images[0].url}
-                            alt="Avatar"
-                          />
-                          
-                          <h5 className="trackName">{track.item.name}</h5>
-                          <h6 className="trackArtist">
-                            by {track.item.album.artists[0].name}
-                          </h6>
-                          
+                          <div className="track-details">
+                            <img
+                              height="200"
+                              width="200"
+                              className="track-img"
+                              src={track.item.album.images[0].url}
+                              alt="Avatar"
+                            />
+
+                            <h5 className="trackName">{track.item.name}</h5>
+                            <h6 className="trackArtist">
+                              by {track.item.album.artists[0].name}
+                            </h6>
                           </div>
 
-                          
                           {/*<a href='http://localhost:8888/analyze'>Analyze</a>*/}
                           <button
                             className="analyze-btn"
@@ -130,6 +128,7 @@ function App() {
                         <>
                           <p>You're not listening to anything at the moment</p>
                           <iframe
+                            title="notlistening"
                             src="https://giphy.com/embed/q9EUjcUOT1aYE"
                             width="480"
                             height="245"
@@ -149,7 +148,7 @@ function App() {
                     </>
                   }
                 />
-                
+
                 <Route
                   path="analyze"
                   element={

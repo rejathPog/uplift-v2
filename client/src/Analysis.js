@@ -38,6 +38,7 @@ function Analysis() {
             <>
               <div className="loading-playlist">
                 <iframe
+                  title="loading"
                   src="https://giphy.com/embed/zZC2AqB84z7zFnlkbF"
                   width="180"
                   height="180"
