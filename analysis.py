@@ -1,10 +1,12 @@
-import sys
 import os
+import sys
+import dotenv
 import lyricsgenius as lg
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 
-#replace access token when running
-GENIUS_ACCESS_TOKEN = "ZQxg_yvxSbolXlz1IWOzvg5nJ76nx9Isc7WBQ7T_lyHnrzHD_5J0nx1Z8e9-zaGc"
+dotenv.load_dotenv()
+
+GENIUS_ACCESS_TOKEN = os.getenv('GENIUS_ACCESS_TOKEN')
 genius = lg.Genius(GENIUS_ACCESS_TOKEN)
 track_name = sys.argv[1]
 artist_name = sys.argv[2]
