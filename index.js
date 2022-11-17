@@ -10,19 +10,6 @@ const CLIENT_ID = process.env.CLIENT_ID;
 const CLIENT_SECRET = process.env.CLIENT_SECRET;
 const REDIRECT_URI = process.env.REDIRECT_URI;
 
-/*
-const LOCALSTORAGE_KEYS = {
-  accessToken: 'spotify_access_token',
-  refreshToken: 'spotify_refresh_token',
-  expireTime: 'spotify_token_expire_time'
-}
-
-const LOCALSTORAGE_VALUES = {
-  accessToken: window.localStorage.getItem(LOCALSTORAGE_KEYS.accessToken),
-  refreshToken: window.localStorage.getItem(LOCALSTORAGE_KEYS.refreshToken),
-  expireTime: window.localStorage.getItem(LOCALSTORAGE_KEYS.expireTime),
-};
-*/
 
 app.get('/', (req, res) => {
     const data = {
@@ -78,27 +65,11 @@ app.get('/callback', (req, res) => {
         .then(response => {
           if (response.status === 200) {
             const { access_token, refresh_token, expires_in } = response.data;
-            //access_token_global = access_token;
             const queryParams = querystring.stringify({
               access_token,
               refresh_token,
               expires_in
             });
-            res.cookie('access_token', access_token);
-/*
-            const accessParams = {
-              [LOCALSTORAGE_KEYS.accessToken]: urlParams.get('access_token'),
-              [LOCALSTORAGE_KEYS.refreshToken]: urlParams.get('refresh_token'),
-              [LOCALSTORAGE_KEYS.expireTime]: urlParams.get('expires_in'),
-            };
-
-            if (accessParams[LOCALSTORAGE_KEYS.accessToken]) {
-              // Store the access params in localStorage
-              for (const property in accessParams) {
-                window.localStorage.setItem(property, accessParams[property]);
-              }
-            }
-*/    
             res.redirect(`http://localhost:3000/?${queryParams}`);
     
           } else {
@@ -139,7 +110,7 @@ app.get('/analyze', (req, res) => {
   const artist = req.query.artistName || null;
   console.log(track);
   console.log(artist);
-  const python = spawn('python',['pytest.py', track, artist]);
+  const python = spawn('python',['analysis.py', track, artist]);
 
   python.stdout.on('data', (data) => {
     console.log(data.toString());
@@ -152,7 +123,7 @@ app.get('/analyze', (req, res) => {
   });
 
   python.on('close', (code) => {
-    console.log(`child process exited with code ${code}`);
+    console.log(`analysis process exited with code ${code}`);
   });
 });
 
@@ -173,7 +144,7 @@ app.get('/createplaylist', (req, res) => {
   });
 
   playlist.on('close', (code) => {
-    console.log(`child process exited with code ${code}`);
+    console.log(`playlist process exited with code ${code}`);
   });
 });
 
